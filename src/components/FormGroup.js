@@ -4,6 +4,8 @@ import { getFormOptions, fetchRecommendations } from "../services/APIService";
 import NumberInput from "../components/NumberInput.js";
 import { Button } from "@mui/material";
 import { getRandomNumber } from "../utilities/HelperFunctions";
+import { Backdrop } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 import {
   MIN_TIME,
   MAX_TIME,
@@ -11,16 +13,12 @@ import {
   MAX_SERVINGS,
 } from "../utilities/constants";
 
-function FormGroup({ recommendations, setRecommendations }) {
-  useEffect(() => {
-    getFormOptions().then((response) => {
-      setIngredOptions(response.ingredients);
-      setCourseOptions(response.course);
-      setDietOptions(response.diet);
-      setCuisineOptions(response.cuisine);
-    });
-  }, []);
-
+function FormGroup({
+  recommendations,
+  setRecommendations,
+  isLoading,
+  setIsLoading,
+}) {
   const [ingredOptions, setIngredOptions] = useState([]);
   const [courseOptions, setCourseOptions] = useState([]);
   const [dietOptions, setDietOptions] = useState([]);
@@ -39,8 +37,20 @@ function FormGroup({ recommendations, setRecommendations }) {
     setRequestData({ ingredients, time, servings, course, cuisine, diet });
   }, [ingredients, time, servings, course, cuisine, diet]);
 
+  useEffect(() => {
+    getFormOptions().then((response) => {
+      setIngredOptions(response.ingredients);
+      setCourseOptions(response.course);
+      setDietOptions(response.diet);
+      setCuisineOptions(response.cuisine);
+      setIsLoading(false);
+    });
+  }, []);
+
   const handleSumbit = () => {
+    setIsLoading(true);
     fetchRecommendations(JSON.stringify(requestData)).then((data) => {
+      setIsLoading(false);
       setRecommendations(data);
     });
   };
